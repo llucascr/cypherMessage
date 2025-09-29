@@ -7,6 +7,7 @@ import org.example.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -51,9 +52,20 @@ public class Main {
         Document doc = new Document("to", to)
                 .append("from", from)
                 .append("message", message)
-                .append("toekn", token);
+                .append("token", token);
 
         MongoHandler.insert("message", doc);
+    }
+
+    public static void listMessages() {
+        System.out.println("Lista de Mensagens");
+        scanner.nextLine();
+
+        System.out.print("Digite o Token: ");
+        String token = scanner.nextLine();
+
+        List<Document> messages = MongoHandler.findAll("message", token);
+        messages.forEach(System.out::println);
     }
 
     public static void main(String[] args) {
@@ -73,6 +85,10 @@ public class Main {
                     registerMessage();
                     break;
                 case 3:
+                    listMessages();
+                    break;
+                default:
+                    System.out.println("Erro");
 
             }
             System.out.println("Escolha uma opção: \n1 - Cadastrar um usuário" +
