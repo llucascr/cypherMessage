@@ -33,18 +33,54 @@ public class Main {
         MongoHandler.insert("user", doc);
     }
 
+    public static void registerMessage() {
+        System.out.println("Envio de Mensagem");
+        scanner.nextLine();
+        System.out.print("to: ");
+        String to = scanner.nextLine();
+
+        System.out.print("from: ");
+        String from = scanner.nextLine();
+
+        System.out.print("message: ");
+        String message = scanner.nextLine();
+
+        System.out.print("token: ");
+        String token = scanner.nextLine();
+
+        Document doc = new Document("to", to)
+                .append("from", from)
+                .append("message", message)
+                .append("toekn", token);
+
+        MongoHandler.insert("message", doc);
+    }
+
     public static void main(String[] args) {
-        System.out.println("Escolha uma opção: \n1 - Cadastrar um usuário\n2 - Enviar uma mensagem\n3 - Listar suas mensagens");
+        System.out.println("Escolha uma opção: \n1 - Cadastrar um usuário" +
+                "\n2 - Enviar uma mensagem" +
+                "\n3 - Listar suas mensagens" +
+                "\n0 - Sair");
         System.out.print("Opção: ");
         int option = scanner.nextInt();
 
-        switch (option) {
-            case 1:
-                registerUser();
-                break;
-            case 2:
+        while (option != 0) {
+            switch (option) {
+                case 1:
+                    registerUser();
+                    break;
+                case 2:
+                    registerMessage();
+                    break;
+                case 3:
 
-                break;
+            }
+            System.out.println("Escolha uma opção: \n1 - Cadastrar um usuário" +
+                    "\n2 - Enviar uma mensagem" +
+                    "\n3 - Listar suas mensagens" +
+                    "\n0 - Sair");
+            System.out.print("Opção: ");
+            option = scanner.nextInt();
         }
 
        MongoHandler.close();
