@@ -1,5 +1,7 @@
 package org.example.entities;
 
+import org.bson.Document;
+
 public class Message {
 
     private User to;
@@ -12,6 +14,13 @@ public class Message {
         this.from = from;
         this.message = message;
         this.token = token;
+    }
+
+    public Document toDocument() {
+        return new Document("to", this.to.getName())
+                .append("from", this.from.getName())
+                .append("message", this.message)
+                .append("token", this.token);
     }
 
     public User getTo() {
@@ -44,5 +53,15 @@ public class Message {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    @Override
+    public String toString() {
+        return "Message{" +
+                "to=" + to +
+                ", from=" + from +
+                ", message='" + message + '\'' +
+                ", token='" + token + '\'' +
+                '}';
     }
 }

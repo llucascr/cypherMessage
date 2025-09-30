@@ -4,12 +4,12 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MongoHandler {
 
@@ -40,6 +40,15 @@ public class MongoHandler {
 
         getCollection(collectionName).find(query).into(results);
         return results;
+    }
+
+    public static Document findUser(String username) throws Exception {
+        Document query = new Document("name", username.toLowerCase());
+        Document user = getCollection("user").find(query).first();
+
+        if (user == null) throw new Exception("Usuário não encontrado");
+
+        return user;
     }
 
     public static void close() {

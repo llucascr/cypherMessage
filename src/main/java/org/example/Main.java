@@ -4,8 +4,6 @@ import org.bson.Document;
 import org.example.configuration.MongoHandler;
 import org.example.entities.Message;
 import org.example.entities.User;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Scanner;
@@ -27,21 +25,21 @@ public class Main {
         System.out.print("Password: ");
         String password = scanner.nextLine();
 
-        Document doc = new Document("name", name)
-                .append("email", email)
-                .append("password", password);
+        User user = new User(name.toLowerCase(), email, password);
 
-        MongoHandler.insert("user", doc);
+        MongoHandler.insert("user", user.toDocument());
     }
 
-    public static void registerMessage() {
+    public static void registerMessage() throws Exception {
         System.out.println("Envio de Mensagem");
         scanner.nextLine();
         System.out.print("to: ");
         String to = scanner.nextLine();
+        Document userTo = MongoHandler.findUser(to);
 
         System.out.print("from: ");
         String from = scanner.nextLine();
+        Document userFrom = MongoHandler.findUser(from);
 
         System.out.print("message: ");
         String message = scanner.nextLine();
@@ -49,15 +47,12 @@ public class Main {
         System.out.print("token: ");
         String token = scanner.nextLine();
 
-        Document doc = new Document("to", to)
-                .append("from", from)
-                .append("message", message)
-                .append("token", token);
+        Message msg = new Message(User.toUser(userTo), User.toUser(userFrom), message, token);
 
-        MongoHandler.insert("message", doc);
+        MongoHandler.insert("message", msg.toDocument());
     }
 
-    public static void listMessages() {
+    public static void listMessages() throws Exception {
         System.out.println("Lista de Mensagens");
         scanner.nextLine();
 
@@ -65,6 +60,10 @@ public class Main {
         String token = scanner.nextLine();
 
         List<Document> messages = MongoHandler.findAll("message", token);
+
+        // TODO: Fazer verificação se o token tem mensagens registradas
+//        if (messages.equals(null)) throw new Exception("Nunhuma mesagem encontrada");
+
         messages.forEach(System.out::println);
     }
 
@@ -79,13 +78,25 @@ public class Main {
         while (option != 0) {
             switch (option) {
                 case 1:
-                    registerUser();
+                    try {
+                        registerUser();
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
                     break;
                 case 2:
-                    registerMessage();
+                    try {
+                        registerMessage();
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
                     break;
                 case 3:
-                    listMessages();
+                    try {
+                        listMessages();
+                    } catch (Exception e) {
+                        System.err.println(e.getMessage());
+                    }
                     break;
                 default:
                     System.out.println("Erro");
