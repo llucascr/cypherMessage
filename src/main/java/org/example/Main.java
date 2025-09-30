@@ -60,9 +60,8 @@ public class Main {
         String token = scanner.nextLine();
 
         List<Document> messages = MongoHandler.findAll("message", token);
-
-        // TODO: Fazer verificação se o token tem mensagens registradas
-//        if (messages.equals(null)) throw new Exception("Nunhuma mesagem encontrada");
+        
+        if (messages.isEmpty()) throw new Exception("Nunhuma mesagem encontrada");
 
         messages.forEach(System.out::println);
     }
