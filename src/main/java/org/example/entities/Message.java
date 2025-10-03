@@ -2,25 +2,33 @@ package org.example.entities;
 
 import org.bson.Document;
 
+import java.time.LocalDate;
+
 public class Message {
 
     private User to;
     private User from;
+    private String title;
     private String message;
     private String token;
+    private LocalDate date;
 
-    public Message(User to, User from, String message, String token) {
+    public Message(User to, User from, String title, String message, String token, LocalDate date) {
         this.to = to;
         this.from = from;
+        this.title = title;
         this.message = message;
         this.token = token;
+        this.date = date;
     }
 
     public Document toDocument() {
         return new Document("to", this.to.getName())
                 .append("from", this.from.getName())
+                .append("title", this.title)
                 .append("message", this.message)
-                .append("token", this.token);
+                .append("token", this.token)
+                .append("date", this.date);
     }
 
     public User getTo() {
@@ -55,13 +63,26 @@ public class Message {
         this.token = token;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
     @Override
     public String toString() {
-        return "Message{" +
-                "to=" + to +
+        return "to=" + to +
                 ", from=" + from +
-                ", message='" + message + '\'' +
-                ", token='" + token + '\'' +
-                '}';
+                ", message='" + message;
     }
 }

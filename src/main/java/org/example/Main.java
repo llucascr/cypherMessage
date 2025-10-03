@@ -5,6 +5,7 @@ import org.example.configuration.MongoHandler;
 import org.example.entities.Message;
 import org.example.entities.User;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Scanner;
 
@@ -41,13 +42,16 @@ public class Main {
         String from = scanner.nextLine();
         Document userFrom = MongoHandler.findUser(from);
 
+        System.out.print("title: ");
+        String title = scanner.nextLine();
+
         System.out.print("message: ");
         String message = scanner.nextLine();
 
         System.out.print("token: ");
         String token = scanner.nextLine();
 
-        Message msg = new Message(User.toUser(userTo), User.toUser(userFrom), message, token);
+        Message msg = new Message(User.toUser(userTo), User.toUser(userFrom), title, message, token, LocalDate.now());
 
         MongoHandler.insert("message", msg.toDocument());
     }
@@ -60,10 +64,16 @@ public class Main {
         String token = scanner.nextLine();
 
         List<Document> messages = MongoHandler.findAll("message", token);
-        
+
         if (messages.isEmpty()) throw new Exception("Nunhuma mesagem encontrada");
 
-        messages.forEach(System.out::println);
+        // TODO: Implementar um jeito de escolher a mensagem e mostrar mostrar o conteudo dela
+        messages.stream()
+                .map(doc -> String.format("to=%s, from=%s, title=%s",
+                        doc.getString("to"),
+                        doc.getString("from"),
+                        doc.getString("title")))
+                .forEach(System.out::println);
     }
 
     public static void main(String[] args) {
