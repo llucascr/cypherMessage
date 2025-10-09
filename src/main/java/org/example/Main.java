@@ -79,46 +79,36 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        System.out.println("Escolha uma opção: \n1 - Cadastrar um usuário" +
-                "\n2 - Enviar uma mensagem" +
-                "\n3 - Listar suas mensagens" +
-                "\n0 - Sair");
-        System.out.print("Opção: ");
-        int option = scanner.nextInt();
+        int option = -1;
 
         while (option != 0) {
-            switch (option) {
-                case 1:
-                    try {
-                        registerUser();
-                    } catch (Exception e) {
-                        System.err.println(e.getMessage());
-                    }
-                    break;
-                case 2:
-                    try {
-                        registerMessage();
-                    } catch (Exception e) {
-                        System.err.println(e.getMessage());
-                    }
-                    break;
-                case 3:
-                    try {
-                        listMessages();
-                    } catch (Exception e) {
-                        System.err.println(e.getMessage());
-                    }
-                    break;
-                default:
-                    System.out.println("Erro");
-
-            }
             System.out.println("Escolha uma opção: \n1 - Cadastrar um usuário" +
                     "\n2 - Enviar uma mensagem" +
                     "\n3 - Listar suas mensagens" +
                     "\n0 - Sair");
             System.out.print("Opção: ");
             option = scanner.nextInt();
+
+            try {
+                switch (option) {
+                    case 0:
+                        break;
+                    case 1:
+                        registerUser();
+                        break;
+                    case 2:
+                        registerMessage();
+                        break;
+                    case 3:
+                        listMessages();
+                        break;
+                    default:
+                        throw new Exception("Opção invalida");
+                }
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.out.println();
+            }
         }
 
         MongoHandler.close();
