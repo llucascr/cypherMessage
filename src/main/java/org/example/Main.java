@@ -1,6 +1,7 @@
 package org.example;
 
 import org.bson.Document;
+import org.example.configuration.Criptografia;
 import org.example.configuration.MongoHandler;
 import org.example.entities.Message;
 import org.example.entities.User;
@@ -13,6 +14,7 @@ import java.util.Scanner;
 public class Main {
 
     private static final Scanner scanner = new Scanner(System.in);
+    public static Criptografia criptografia = new Criptografia();
 
     public static void registerUser() {
         System.out.println("Cadastro de Usuário");
@@ -51,7 +53,7 @@ public class Main {
         System.out.print("token: ");
         String token = scanner.nextLine();
 
-        Message msg = new Message(User.toUser(userTo), User.toUser(userFrom), title, message, token, LocalDate.now());
+        Message msg = new Message(User.toUser(userTo), User.toUser(userFrom), title, message, criptografia.encrypt(token), LocalDate.now());
 
         MongoHandler.insert("message", msg.toDocument());
     }
@@ -63,7 +65,7 @@ public class Main {
         System.out.print("Digite o Token: ");
         String token = scanner.nextLine();
 
-        List<Document> messages = MongoHandler.findAll("message", token);
+        List<Document> messages = MongoHandler.findAll("message", criptografia.encrypt(token));
 
         if (messages.isEmpty()) throw new Exception("Nunhuma mesagem encontrada");
 
@@ -119,6 +121,6 @@ public class Main {
             option = scanner.nextInt();
         }
 
-       MongoHandler.close();
+        MongoHandler.close();
     }
 }
