@@ -1,6 +1,9 @@
 package org.example.entities;
 
 import org.bson.Document;
+import org.example.configuration.MongoHandler;
+
+import java.util.Scanner;
 
 public class User {
 
@@ -56,5 +59,24 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public static void registerUser() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("Cadastro de Usuário");
+        scanner.nextLine();
+        System.out.print("Nome: ");
+        String name = scanner.nextLine();
+
+        System.out.print("email: ");
+        String email = scanner.nextLine();
+
+        System.out.print("Password: ");
+        String password = scanner.nextLine();
+
+        User user = new User(name.toLowerCase(), email, password);
+
+        MongoHandler.insert("user", user.toDocument());
     }
 }
