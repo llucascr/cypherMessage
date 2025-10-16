@@ -14,21 +14,20 @@ public class Message {
     private User from;
     private String title;
     private String message;
-    private String token;
     private LocalDate date;
 
     private Criptografia criptografia = null;
 
-    public Message(){
+    public Message() {
         this.criptografia = new Criptografia();
     }
 
-    public Message(User to, User from, String title, String message, String token, LocalDate date) {
+    public Message(User to, User from, String title, String message, LocalDate date) {
         this.to = to;
         this.from = from;
         this.title = title;
         this.message = message;
-        this.token = token;
+//        this.token = token;
         this.date = date;
     }
 
@@ -37,7 +36,6 @@ public class Message {
                 .append("from", this.from.getName())
                 .append("title", this.title)
                 .append("message", this.message)
-                .append("token", this.token)
                 .append("date", this.date);
     }
 
@@ -65,14 +63,6 @@ public class Message {
         this.message = message;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
     public LocalDate getDate() {
         return date;
     }
@@ -93,7 +83,6 @@ public class Message {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Envio de Mensagem");
-        scanner.nextLine();
         System.out.print("to: ");
         String to = scanner.nextLine();
         Document userTo = MongoHandler.findUser(to);
@@ -111,7 +100,7 @@ public class Message {
         System.out.print("token: ");
         String token = scanner.nextLine();
 
-        Message msg = new Message(User.toUser(userTo), User.toUser(userFrom), title, message, this.criptografia.encrypt(token), LocalDate.now());
+        Message msg = new Message(User.toUser(userTo), User.toUser(userFrom), title, Criptografia.encrypt(message, token), LocalDate.now());
 
         MongoHandler.insert("message", msg.toDocument());
     }
@@ -120,21 +109,21 @@ public class Message {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Lista de Mensagens");
-        scanner.nextLine();
 
         System.out.print("Digite o Token: ");
         String token = scanner.nextLine();
 
-        List<Document> messages = MongoHandler.findAll("message", this.criptografia.encrypt(token));
+        List<Document> messages = MongoHandler.findAll("message", token);
 
         if (messages.isEmpty()) throw new Exception("Nunhuma mesagem encontrada");
 
         // TODO: Implementar um jeito de escolher a mensagem e mostrar mostrar o conteudo dela
         messages.stream()
-                .map(doc -> String.format("to=%s, from=%s, title=%s",
+                .map(doc -> String.format("to=%s, from=%s, title=%s, mensagem=%s",
                         doc.getString("to"),
                         doc.getString("from"),
-                        doc.getString("title")))
+                        doc.getString("title"),
+                        doc.getString("message")))
                 .forEach(System.out::println);
     }
 

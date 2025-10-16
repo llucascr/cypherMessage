@@ -1,5 +1,6 @@
 package org.example.configuration;
 
+import com.mongodb.MongoException;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -33,12 +34,26 @@ public class MongoHandler {
         System.out.println("Documento inserido com sucesso!");
     }
 
-    public static List<Document> findAll(String collectionName, String token) {
+    public static List<Document> findAll(String collectionName, String token) throws MongoException, Exception {
         List<Document> results = new ArrayList<>();
+        List<Document> all = new ArrayList<>();
 
-        Document query = new Document("token", token);
+        getCollection(collectionName).find().into(all);
 
-        getCollection(collectionName).find(query).into(results);
+        for (Document doc : all) {
+            try {
+                String encryptedMessage = doc.getString("message");
+                String decrypted = Criptografia.decrypt(encryptedMessage, token);
+
+                Document copy = new Document(doc);
+                copy.put("message", decrypted);
+                results.add(copy);
+
+            } catch (Exception e) {
+                throw new Exception("Não foi possivel buscar mensagens");
+            }
+        }
+
         return results;
     }
 

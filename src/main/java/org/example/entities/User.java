@@ -1,6 +1,7 @@
 package org.example.entities;
 
 import org.bson.Document;
+import org.example.configuration.Criptografia;
 import org.example.configuration.MongoHandler;
 
 import java.util.Scanner;
@@ -61,11 +62,10 @@ public class User {
         this.password = password;
     }
 
-    public static void registerUser() {
+    public static void registerUser() throws Exception {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Cadastro de Usuário");
-        scanner.nextLine();
         System.out.print("Nome: ");
         String name = scanner.nextLine();
 
