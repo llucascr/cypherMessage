@@ -7,7 +7,9 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 
+import javax.print.Doc;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,26 +36,15 @@ public class MongoHandler {
         System.out.println("Documento inserido com sucesso!");
     }
 
-    public static List<Document> findAll(String collectionName, String token) throws MongoException, Exception {
+    public static List<Document> findAll(String collectionName) {
+        return findAll(collectionName, new Document());
+    }
+
+    public static List<Document> findAll(String collectionName, Document filter) {
         List<Document> results = new ArrayList<>();
-        List<Document> all = new ArrayList<>();
 
-        getCollection(collectionName).find().into(all);
 
-        for (Document doc : all) {
-            try {
-                String encryptedMessage = doc.getString("message");
-                String decrypted = Criptografia.decrypt(encryptedMessage, token);
-
-                Document copy = new Document(doc);
-                copy.put("message", decrypted);
-                results.add(copy);
-
-            } catch (Exception e) {
-                throw new Exception("Não foi possivel buscar mensagens");
-            }
-        }
-
+        getCollection(collectionName).find(filter).into(results);
         return results;
     }
 
@@ -65,6 +56,13 @@ public class MongoHandler {
 
         return user;
     }
+
+    public static void update(String collectionName, Document filter, Document document) {
+        MongoCollection<Document> collection = getCollection(collectionName);
+
+        collection.updateOne(filter, document);
+    }
+
 
     public static void close() {
         client.close();
