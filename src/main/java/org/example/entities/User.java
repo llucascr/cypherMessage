@@ -1,7 +1,6 @@
 package org.example.entities;
 
 import org.bson.Document;
-import org.example.configuration.Criptografia;
 import org.example.configuration.MongoHandler;
 
 import java.util.Scanner;

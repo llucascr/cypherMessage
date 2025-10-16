@@ -1,7 +1,5 @@
 package org.example.entities;
 
-import com.mongodb.MongoException;
-import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.example.configuration.Criptografia;
 import org.example.configuration.MongoHandler;
@@ -21,11 +19,7 @@ public class Message {
     private LocalDate date;
     private String status = "não lida";
 
-    private Criptografia criptografia = null;
-
-    public Message() {
-        this.criptografia = new Criptografia();
-    }
+    public Message() {}
 
     public Message(User to, User from, String title, String message, LocalDate date, String status) {
         this.to = to;
@@ -85,25 +79,25 @@ public class Message {
         this.title = title;
     }
 
-    public List<Document> findAllMessage(String token) throws Exception {
-            List<Document> results = new ArrayList<>();
-            List<Document> all = MongoHandler.findAll("message");
+    public List<Document> findAllMessage(Document filter, String token) throws Exception {
+        List<Document> results = new ArrayList<>();
+        List<Document> all = MongoHandler.findAll("message", filter);
 
-            for (Document doc : all) {
-                try {
-                    String encryptedMessage = doc.getString("message");
-                    String decrypted = Criptografia.decrypt(encryptedMessage, token);
+        for (Document doc : all) {
+            try {
+                String encryptedMessage = doc.getString("message");
+                String decrypted = Criptografia.decrypt(encryptedMessage, token);
 
-                    Document copy = new Document(doc);
-                    copy.put("message", decrypted);
-                    results.add(copy);
+                Document copy = new Document(doc);
+                copy.put("message", decrypted);
+                results.add(copy);
 
-                } catch (Exception e) {
-                    throw new Exception("Não foi possivel buscar mensagens");
-                }
+            } catch (Exception e) {
+                throw new Exception("Não foi possivel buscar mensagens");
             }
+        }
 
-            return results;
+        return results;
     }
 
     public void registerMessage() throws Exception {
@@ -149,52 +143,65 @@ public class Message {
         System.out.print("Digite o Token: ");
         String token = scanner.nextLine();
 
+        try {
+            mensagem(0, token);
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+
+    private void mensagem(int choice, String token) throws Exception {
+        Scanner scanner = new Scanner(System.in);
+
         Document filter = new Document("status", "não lida");
-        List<Document> messages = MongoHandler.findAll("message", filter);
+        List<Document> messages = this.findAllMessage(filter, token);
 
-        if (messages.isEmpty()) throw new Exception("Nunhuma mesagem encontrada");
-
-        // TODO: Implementar um jeito de escolher a mensagem e mostrar mostrar o conteudo dela
-        int choice = -1;
-
-        while (choice != 0) {
-            for (int i = 0; i < messages.size(); i++) {
-                Document doc = messages.get(i);
-                System.out.printf("%d) %s - %s%n", i + 1, doc.getString("from"), doc.getString("title"));
-            }
-            System.out.println("0) Sair");
-
-            System.out.print("\nEscolha uma mensagem: ");
-            choice = scanner.nextInt();
-            scanner.nextLine();
-
-            try {
-                if(choice == 0) break;
-
-                Document chosen = messages.get(choice - 1);
-                System.out.printf("\n--- Mensagem ---\nDe: %s\nPara: %s\nTítulo: %s\nConteúdo: %s%n",
-                        chosen.getString("from"),
-                        chosen.getString("to"),
-                        chosen.getString("title"),
-                        chosen.getString("message"));
-
-                this.updateStatus(chosen.getObjectId("_id"), "lida");
-
-            } catch (Exception e) {
-                System.err.println(e.getMessage());
-                System.out.println();
-            }
+        // Caso base da recursão
+        if (messages.isEmpty()) {
+            System.out.println("\nNenhuma mensagem não lida encontrada.\n");
+            return;
         }
 
+        System.out.println("\n=== MENSAGENS NÃO LIDAS ===");
+        for (int i = 0; i < messages.size(); i++) {
+            Document doc = messages.get(i);
+            System.out.printf("%d) %s - %s%n", i + 1, doc.getString("from"), doc.getString("title"));
+        }
+        System.out.println("0) Sair");
 
+        System.out.print("\nEscolha uma mensagem: ");
+        choice = scanner.nextInt();
+        scanner.nextLine();
 
-//        messages.stream()
-//                .map(doc -> String.format("to=%s, from=%s, title=%s",
-//                        doc.getString("to"),
-//                        doc.getString("from"),
-//                        doc.getString("title")))
-//                .forEach(System.out::println);
+        if (choice == 0) {
+            System.out.println("\nSaindo...");
+            return;
+        }
+
+        try {
+            Document chosen = messages.get(choice - 1);
+
+            System.out.printf(
+                    "\n--- Mensagem ---\nDe: %s\nPara: %s\nTítulo: %s\nConteúdo: %s%n",
+                    chosen.getString("from"),
+                    chosen.getString("to"),
+                    chosen.getString("title"),
+                    chosen.getString("message")
+            );
+
+            // Atualiza status da mensagem
+            this.updateStatus(chosen.getObjectId("_id"), "lida");
+            System.out.println("\nMensagem marcada como lida!\n");
+
+            mensagem(choice, token);
+
+        } catch (Exception e) {
+            System.err.println("Erro ao abrir mensagem: " + e.getMessage());
+            mensagem(choice, token); // continua recursão mesmo com erro
+        }
     }
+
 
     @Override
     public String toString() {
