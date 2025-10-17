@@ -61,11 +61,10 @@ public class User {
         this.password = password;
     }
 
-    public static void registerUser() {
+    public static void registerUser() throws Exception {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Cadastro de Usuário");
-        scanner.nextLine();
         System.out.print("Nome: ");
         String name = scanner.nextLine();
 

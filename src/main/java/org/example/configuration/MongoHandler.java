@@ -8,8 +8,6 @@ import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class MongoHandler {
 
@@ -33,12 +31,15 @@ public class MongoHandler {
         System.out.println("Documento inserido com sucesso!");
     }
 
-    public static List<Document> findAll(String collectionName, String token) {
+    public static List<Document> findAll(String collectionName) {
+        return findAll(collectionName, new Document());
+    }
+
+    public static List<Document> findAll(String collectionName, Document filter) {
         List<Document> results = new ArrayList<>();
 
-        Document query = new Document("token", token);
 
-        getCollection(collectionName).find(query).into(results);
+        getCollection(collectionName).find(filter).into(results);
         return results;
     }
 
@@ -50,6 +51,13 @@ public class MongoHandler {
 
         return user;
     }
+
+    public static void update(String collectionName, Document filter, Document document) {
+        MongoCollection<Document> collection = getCollection(collectionName);
+
+        collection.updateOne(filter, document);
+    }
+
 
     public static void close() {
         client.close();
